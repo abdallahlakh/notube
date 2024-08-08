@@ -12,7 +12,10 @@ def process_video(url):
         video_id = url.split('v=')[1]
 
         # Fetch the transcript
-        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
+        
+        proxy_url = f'http://{username}:{password}@{proxy_host}:{proxy_port}'
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'], proxies={'http': proxy_url,
+        'https': proxy_url})
         
         # Save the transcript to a file
         with open('subtitles.txt', 'w', encoding='utf-8') as file:
