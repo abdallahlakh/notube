@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template_string, jsonify
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound
 import openai
 import os
 import json
@@ -27,6 +27,9 @@ def process_video(url):
         
         # Send the subtitles to OpenAI API
         send_subtitles_to_openai('subtitles.txt')
+    except NoTranscriptFound:
+        print("Subtitles are disabled for this video.")
+        return "Subtitles are disabled for this video."
     except Exception as e:
         print(f"An error occurred: {e}")
         return str(e)
