@@ -3,20 +3,33 @@ import requests
 import openai
 import os
 import json
+import re
 
 app = Flask(__name__)
 
+def extract_video_id(url):
+    # Define regex patterns for different YouTube URL formats
+    patterns = [
+        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^&]+)',
+        r'(?:https?://)?youtu\.be/([^?&]+)',
+        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([^?&]+)',
+        r'(?:https?://)?m\.youtube\.com/watch\?v=([^&]+)'
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    
+    return None
+
 def process_video(url):
     try:
-        # Check if the URL contains 'v='
-        if 'v=' in url:
-            video_id = url.split('v=')[1]
-        elif 'si=' in url:
-            video_id = url.split('si=')[1]
-        else:
-            print("Invalid YouTube URL. 'v=' or 'si=' parameter not found.")
-            return "Invalid YouTube URL. 'v=' or 'si=' parameter not found."
-
+        # Extract the video ID from the URL
+        video_id = extract_video_id(url)
+        if not video_id:
+            print("Invalid YouTube URL. Video ID not found.")
+            return "Invalid YouTube URL. Video ID not found."
 
         # Define the headers with your RapidAPI key and host
         headers = {
