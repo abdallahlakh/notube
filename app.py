@@ -8,6 +8,11 @@ app = Flask(__name__)
 
 def process_video(url):
     try:
+        # Check if the URL contains 'v='
+        if 'v=' not in url:
+            print("Invalid YouTube URL. 'v=' parameter not found.")
+            return "Invalid YouTube URL. 'v=' parameter not found."
+
         # Extract the video ID from the URL
         video_id = url.split('v=')[1]
 
