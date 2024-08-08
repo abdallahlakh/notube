@@ -9,12 +9,14 @@ app = Flask(__name__)
 def process_video(url):
     try:
         # Check if the URL contains 'v='
-        if 'v=' not in url:
-            print("Invalid YouTube URL. 'v=' parameter not found.")
-            return "Invalid YouTube URL. 'v=' parameter not found."
+        if 'v=' in url:
+            video_id = url.split('v=')[1]
+        elif 'si=' in url:
+            video_id = url.split('si=')[1]
+        else:
+            print("Invalid YouTube URL. 'v=' or 'si=' parameter not found.")
+            return "Invalid YouTube URL. 'v=' or 'si=' parameter not found."
 
-        # Extract the video ID from the URL
-        video_id = url.split('v=')[1]
 
         # Define the headers with your RapidAPI key and host
         headers = {
