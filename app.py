@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template_string, jsonify
-from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound
+import requests
 import openai
 import os
 import json
@@ -11,25 +11,44 @@ def process_video(url):
         # Extract the video ID from the URL
         video_id = url.split('v=')[1]
 
-        # Fetch the transcript
-        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
-        
-        # Save the transcript to a file
-        with open('subtitles.txt', 'w', encoding='utf-8') as file:
-            for entry in transcript:
-                start = entry['start']
-                duration = entry['duration']
-                text = entry['text']
-                file.write(f"{start} --> {start + duration}\n{text}\n\n")
-            file.write("give me the essential keys of this video ")
-        
-        print("Subtitles downloaded and saved to subtitles.txt successfully.")
-        
-        # Send the subtitles to OpenAI API
-        send_subtitles_to_openai('subtitles.txt')
-    except NoTranscriptFound:
-        print("Subtitles are disabled for this video.")
-        return "Subtitles are disabled for this video."
+        # Define the headers with your RapidAPI key and host
+        headers = {
+            "x-rapidapi-key": "4f941543edmsh746dde95955d7adp166a3ejsnae2f11d94b55",
+            "x-rapidapi-host": "youtube-media-downloader.p.rapidapi.com"
+        }
+
+        # Step 1: Get the subtitle URL for the video
+        details_url = "https://youtube-media-downloader.p.rapidapi.com/v2/video/details"
+        details_querystring = {"videoId": video_id}
+
+        details_response = requests.get(details_url, headers=headers, params=details_querystring)
+        video_details = details_response.json()
+
+        # Check if the subtitle URL is available
+        if 'subtitles' in video_details and len(video_details['subtitles']['items']) > 0:
+            english_subtitles = [item for item in video_details['subtitles']['items'] if item['text'] == 'English']
+            
+            if english_subtitles:
+                subtitle_url = english_subtitles[0]['url']
+                
+                # Step 2: Request the subtitles using the subtitle URL
+                subtitles_response = requests.get(subtitle_url)
+                
+                # Save the subtitles to a file
+                with open('subtitles.txt', 'w', encoding='utf-8') as file:
+                    file.write(subtitles_response.text)
+                    file.write("\ngive me the essential keys of this video ")
+                
+                print("Subtitles downloaded and saved to subtitles.txt successfully.")
+                
+                # Send the subtitles to OpenAI API
+                send_subtitles_to_openai('subtitles.txt')
+            else:
+                print("English subtitles are not available for this video.")
+                return "English subtitles are not available for this video."
+        else:
+            print("Subtitles are not available for this video.")
+            return "Subtitles are not available for this video."
     except Exception as e:
         print(f"An error occurred: {e}")
         return str(e)
