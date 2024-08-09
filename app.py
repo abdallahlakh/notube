@@ -47,7 +47,7 @@ def process_video(url):
         # Check if the subtitle URL is available
         if 'subtitles' in video_details and len(video_details['subtitles']['items']) > 0:
             # Try to find English subtitles first
-            english_subtitles = [item for item in video_details['subtitles']['items'] if item['text'] == 'English']
+            english_subtitles = video_details['subtitles']['items'][0]
             
             if english_subtitles:
                 subtitle_url = english_subtitles[0]['url']
@@ -61,7 +61,7 @@ def process_video(url):
             # Save the subtitles to a file
             with open('subtitles.txt', 'w', encoding='utf-8') as file:
                 file.write(subtitles_response.text)
-                file.write("\ngenerate to me keys in darija of north africa ")
+                file.write("\ngenerate to me keys ")
             
             print("Subtitles downloaded and saved to subtitles.txt successfully.")
             
