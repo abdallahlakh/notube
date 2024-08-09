@@ -57,7 +57,7 @@ def process_video(url):
                 # Save the subtitles to a file
                 with open('subtitles.txt', 'w', encoding='utf-8') as file:
                     file.write(subtitles_response.text)
-                    file.write("\ngenerate to me quiz to see if i understand it ")
+                    file.write("\ngenerate to me keys in darija of north africa ")
                 
                 print("Subtitles downloaded and saved to subtitles.txt successfully.")
                 
